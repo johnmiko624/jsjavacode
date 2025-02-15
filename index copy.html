@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bahala na "Camulative Sum"</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: url('https://i.gifer.com/Cwgf.gif') center/cover fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .calculator-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(70, 40, 20, 0.37);
+            backdrop-filter: blur(8px);
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            animation: slideIn 0.8s ease-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculator-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(70, 40, 20, 0.45);
+        }
+
+        h1 {
+            color: #5D4037;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.8s ease-out;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #5D4037, #8D6E63);
+            border-radius: 2px;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 1.5rem;
+            background: #f5f0eb;
+            padding: 0.5rem;
+            border-radius: 12px;
+            gap: 0.5rem;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            flex: 1;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            color: #8D6E63;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(141, 110, 99, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .tab:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .tab.active {
+            background: linear-gradient(145deg, #5D4037, #8D6E63);
+            color: white;
+            box-shadow: 0 4px 15px rgba(93, 64, 55, 0.2);
+            animation: pulse 1s infinite;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            color: #5D4037;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px dashed #8D6E63;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            border-color: #5D4037;
+            background: rgba(141, 110, 99, 0.05);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #8D6E63;
+            box-shadow: 0 0 0 3px rgba(141, 110, 99, 0.1);
+        }
+
+        button {
+            background: linear-gradient(145deg, #5D4037, #8D6E63);
+            color: white;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 1.1em;
+            box-shadow: 0 4px 15px rgba(93, 64, 55, 0.2);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transform: rotate(45deg);
+            transition: transform 0.6s;
+        }
+
+        button:hover::after {
+            transform: rotate(45deg) translate(50%, 50%);
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(145deg, #f8f9fa, #ffffff);
+            border-radius: 12px;
+            border-left: 6px solid #8D6E63;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        .result:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        #fileContent {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 1.2rem;
+            background: #f5f0eb;
+            border-radius: 12px;
+            margin-top: 1.2rem;
+            border: 1px solid #DAA520;
+            font-size: 0.9em;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        #fileContent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .error {
+            color: #D32F2F;
+            margin-top: 0.8rem;
+            font-weight: 500;
+            display: block;
+            text-align: center;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f5f0eb;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #8D6E63;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5D4037;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Bahala na "Camulative Sum"</h1>
+        
+        <div class="tab-container">
+            <button class="tab active" onclick="switchTab('file')">File Input</button>
+            <button class="tab" onclick="switchTab('manual')">Manual Input</button>
+        </div>
+
+        <div id="fileInput" class="input-section">
+            <div class="input-group">
+                <label for="fileUpload">Upload File (CSV or TXT):</label>
+                <input type="file" id="fileUpload" accept=".csv,.txt">
+            </div>
+            <button onclick="processFile()">Calculate Sum</button>
+            <div id="fileContent"></div>
+        </div>
+
+        <div id="manualInput" class="input-section" style="display: none;">
+            <div class="input-group">
+                <label for="numbers">Enter Numbers (comma-separated):</label>
+                <input type="text" id="numbers" placeholder="e.g., 1,2,3,4,5">
+            </div>
+            <button onclick="calculateManual()">Calculate Sum</button>
+        </div>
+
+        <div class="result" id="result">
+            Result will appear here
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            if (tab === 'file') {
+                document.getElementById('fileInput').style.display = 'block';
+                document.getElementById('manualInput').style.display = 'none';
+            } else {
+                document.getElementById('fileInput').style.display = 'none';
+                document.getElementById('manualInput').style.display = 'block';
+            }
+        }
+
+        function processFile() {
+            const fileInput = document.getElementById('fileUpload');
+            const resultDiv = document.getElementById('result');
+            const fileContentDiv = document.getElementById('fileContent');
+
+            if (!fileInput.files.length) {
+                resultDiv.innerHTML = '<span class="error">Please select a file first!</span>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split(/[\r\n]+/); // Handle different line endings
+                let cumulativeSum = 0;
+                let firstNumbers = [];
+
+                lines.forEach(line => {
+                    const numbers = line.trim().split(/[,\s]+/);
+                    // Only process the first number from each line
+                    if (numbers[0] && !isNaN(numbers[0])) {
+                        const firstNum = parseFloat(numbers[0]);
+                        cumulativeSum += firstNum;
+                        firstNumbers.push(firstNum);
+                    }
+                });
+
+                if (firstNumbers.length === 0) {
+                    resultDiv.innerHTML = '<span class="error">No valid numbers found in the file!</span>';
+                    return;
+                }
+
+                fileContentDiv.innerHTML = `<strong>First Numbers from Each Row:</strong><br>${firstNumbers.join(', ')}`;
+                resultDiv.innerHTML = `
+                    <strong>Results:</strong><br>
+                    Cumulative Sum: ${cumulativeSum.toFixed(2)}<br>
+                    Number of Rows Processed: ${firstNumbers.length}
+                `;
+            };
+
+            reader.onerror = function() {
+                resultDiv.innerHTML = '<span class="error">Error reading file!</span>';
+            };
+
+            reader.readAsText(file);
+        }
+
+        function calculateManual() {
+            const numbersInput = document.getElementById('numbers').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!numbersInput.trim()) {
+                resultDiv.innerHTML = '<span class="error">Please enter numbers!</span>';
+                return;
+            }
+
+            const numbers = numbersInput.split(/[,\s]+/);
+            // Only take the first number
+            const firstNumber = parseFloat(numbers[0].trim());
+
+            if (isNaN(firstNumber)) {
+                resultDiv.innerHTML = '<span class="error">No valid number found!</span>';
+                return;
+            }
+
+            resultDiv.innerHTML = `
+                <strong>Results:</strong><br>
+                First Number: ${firstNumber.toFixed(2)}
+            `;
+        }
+    </script>
+</body>
+</html>
